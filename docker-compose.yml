@@ -1,0 +1,33 @@
+version: "3"
+services:
+  consul1:
+    container_name: consul1
+    hostname: consul1
+    image: consul
+    command: agent -server -ui -client 0.0.0.0 -bootstrap-expect 3
+  consul2:
+    container_name: consul2
+    hostname: consul2
+    image: consul
+    command: agent -server -ui -client 0.0.0.0 -join consul1
+    depends_on:
+      - consul1
+  consul3:
+    container_name: consul3
+    hostname: consul3
+    image: consul
+    command: agent -server -ui -client 0.0.0.0 -join consul1
+    depends_on:
+      - consul1
+  consul:
+    container_name: consul
+    hostname: consul
+    image: nginx
+    ports:
+      - 8500:8500
+    volumes:
+      - ${PWD}/consul.conf:/etc/nginx/conf.d/consul.conf
+    depends_on:
+      - consul1
+      - consul2
+      - consul3
